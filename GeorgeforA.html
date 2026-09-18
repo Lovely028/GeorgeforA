@@ -1,1 +1,793 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>For Alda · The George Vithoulkas Homeopathy Library</title>
+<meta name="description" content="A personal gift library of George Vithoulkas homeopathy video material, curated for Alda.">
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Caveat:wght@500;600&family=Cormorant+Garamond:ital,wght@0,500;0,600;1,500&family=Inter:wght@400;500;600;700&display=swap');
+
+  :root {
+    --red: #b91c1c;
+    --red-deep: #7f1d1d;
+    --red-soft: #fef2f2;
+    --white: #ffffff;
+    --cream: #fffaf8;
+    --ink: #1c1917;
+    --muted: #78716c;
+    --line: #e7e5e4;
+    --blue: #1e3a5f;
+    --blue-soft: #dbeafe;
+    --gold: #b45309;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    background: var(--cream);
+    color: var(--ink);
+    font: 15px/1.55 Inter, system-ui, -apple-system, sans-serif;
+    min-height: 100vh;
+  }
+
+  /* ========== LANDING / GIFT ENVELOPE ========== */
+  #landing {
+    position: fixed;
+    inset: 0;
+    z-index: 100;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: linear-gradient(160deg, #7f1d1d 0%, #991b1b 40%, #1e3a5f 100%);
+    transition: opacity 0.7s ease, visibility 0.7s;
+    padding-bottom: 80px;
+  }
+  #landing.hidden {
+    opacity: 0;
+    visibility: hidden;
+    pointer-events: none;
+  }
+
+  .envelope-wrap {
+    perspective: 1200px;
+    width: min(420px, 92vw);
+    cursor: pointer;
+  }
+
+  .envelope {
+    position: relative;
+    width: 100%;
+    aspect-ratio: 1.4 / 1;
+    transform-style: preserve-3d;
+    transition: transform 0.9s cubic-bezier(0.4, 0, 0.2, 1);
+  }
+  .envelope.open {
+    transform: rotateX(-18deg) scale(1.03);
+  }
+
+  .env-front, .env-flap, .env-back {
+    position: absolute;
+    inset: 0;
+    border-radius: 8px;
+  }
+
+  .env-back {
+    background: linear-gradient(145deg, #fef2f2, #fee2e2);
+    box-shadow: 0 25px 50px -12px rgba(0,0,0,0.4);
+    border: 1px solid #fecaca;
+  }
+
+  .env-front {
+    background: linear-gradient(160deg, #fff 0%, #fef2f2 100%);
+    border: 1px solid #fecaca;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 24px;
+    z-index: 2;
+    clip-path: polygon(0 0, 100% 0, 100% 100%, 0 100%);
+  }
+
+  .env-flap {
+    background: linear-gradient(180deg, #b91c1c 0%, #991b1b 100%);
+    clip-path: polygon(0 0, 50% 55%, 100% 0);
+    transform-origin: top center;
+    z-index: 3;
+    transition: transform 0.8s cubic-bezier(0.4, 0, 0.2, 1);
+    box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+  }
+  .envelope.open .env-flap {
+    transform: rotateX(180deg);
+  }
+
+  .seal {
+    position: absolute;
+    top: 42%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: 64px;
+    height: 64px;
+    background: radial-gradient(circle at 35% 35%, #fef3c7, #b45309);
+    border-radius: 50%;
+    border: 3px solid #92400e;
+    display: grid;
+    place-items: center;
+    font-size: 28px;
+    z-index: 4;
+    box-shadow: 0 4px 10px rgba(0,0,0,0.2);
+    transition: opacity 0.4s 0.3s, transform 0.4s;
+  }
+  .envelope.open .seal {
+    opacity: 0;
+    transform: translate(-50%, -50%) scale(0.6);
+  }
+
+  .letter {
+    position: absolute;
+    inset: 12px;
+    background: #fffef9;
+    border-radius: 4px;
+    border: 1px solid #e7e5e4;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 20px 18px;
+    text-align: center;
+    z-index: 1;
+    transform: translateY(8px);
+    transition: transform 0.7s 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+    box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+  }
+  .envelope.open .letter {
+    transform: translateY(-28%);
+  }
+
+  .chimp {
+    width: 88px;
+    height: 88px;
+    margin-bottom: 10px;
+  }
+
+  .to-name {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 28px;
+    font-weight: 600;
+    color: var(--red-deep);
+    letter-spacing: -0.5px;
+  }
+  .dedication {
+    font-family: 'Caveat', cursive;
+    font-size: 26px;
+    color: var(--blue);
+    margin: 6px 0 4px;
+    line-height: 1.2;
+  }
+  .sub {
+    font-size: 12px;
+    color: var(--muted);
+    margin-top: 8px;
+    letter-spacing: 0.04em;
+  }
+
+  .tap-hint {
+    position: absolute;
+    bottom: -48px;
+    left: 0;
+    right: 0;
+    text-align: center;
+    color: rgba(255,255,255,0.85);
+    font-size: 13px;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    animation: pulse 2s ease-in-out infinite;
+  }
+  .open-btn {
+    position: absolute;
+    bottom: -110px;
+    left: 50%;
+    transform: translateX(-50%);
+    background: #fff;
+    color: #7f1d1d;
+    border: none;
+    border-radius: 999px;
+    padding: 14px 28px;
+    font: 600 15px/1 Inter, system-ui, sans-serif;
+    box-shadow: 0 8px 24px rgba(0,0,0,0.25);
+    cursor: pointer;
+    z-index: 10;
+    -webkit-tap-highlight-color: transparent;
+  }
+  .open-btn:active {
+    transform: translateX(-50%) scale(0.97);
+  }
+  @keyframes pulse {
+    0%, 100% { opacity: 0.7; }
+    50% { opacity: 1; }
+  }
+
+  /* ========== MAIN LIBRARY ========== */
+  #library {
+    display: none;
+    min-height: 100vh;
+  }
+  #library.show { display: block; }
+
+  header {
+    background: linear-gradient(145deg, #7f1d1d 0%, #991b1b 55%, #1e3a5f 100%);
+    color: white;
+    padding: 48px 24px 40px;
+  }
+  .wrap { max-width: 1180px; margin: 0 auto; }
+
+  .eyebrow {
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    font-size: 11px;
+    color: #fca5a5;
+    font-weight: 700;
+  }
+  h1 {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: clamp(32px, 5vw, 48px);
+    line-height: 1.05;
+    letter-spacing: -1px;
+    margin: 10px 0 12px;
+    font-weight: 600;
+  }
+  header p {
+    max-width: 640px;
+    color: #fecaca;
+    font-size: 16px;
+    line-height: 1.5;
+  }
+  .gift-note {
+    margin-top: 18px;
+    font-family: 'Caveat', cursive;
+    font-size: 22px;
+    color: #bfdbfe;
+  }
+
+  nav {
+    display: flex;
+    gap: 10px;
+    flex-wrap: wrap;
+    margin-top: 22px;
+  }
+  nav a {
+    color: #fff;
+    text-decoration: none;
+    border: 1px solid rgba(255,255,255,0.35);
+    border-radius: 999px;
+    padding: 8px 14px;
+    font-size: 13px;
+    transition: background 0.2s;
+  }
+  nav a:hover { background: rgba(255,255,255,0.12); }
+
+  main { padding: 28px 24px 80px; }
+
+  .panel {
+    background: var(--white);
+    border: 1px solid var(--line);
+    border-radius: 16px;
+    padding: 20px;
+    margin: 18px 0;
+    box-shadow: 0 4px 16px rgba(127, 29, 29, 0.04);
+  }
+  .notice {
+    font-size: 13px;
+    color: var(--muted);
+  }
+  .notice strong { color: var(--ink); }
+
+  /* Start Here path */
+  .start-here {
+    background: linear-gradient(135deg, var(--red-soft), #eff6ff);
+    border: 1px solid #fecaca;
+  }
+  .start-here h2 {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 26px;
+    color: var(--red-deep);
+    margin-bottom: 6px;
+  }
+  .path-steps {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 12px;
+    margin-top: 16px;
+  }
+  .step {
+    background: white;
+    border-radius: 12px;
+    padding: 14px 16px;
+    border: 1px solid var(--line);
+    cursor: pointer;
+    transition: border-color 0.2s, box-shadow 0.2s;
+  }
+  .step:hover {
+    border-color: var(--red);
+    box-shadow: 0 4px 14px rgba(185, 28, 28, 0.1);
+  }
+  .step-num {
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 0.08em;
+    color: var(--red);
+    text-transform: uppercase;
+  }
+  .step h4 {
+    font-size: 15px;
+    margin: 4px 0 2px;
+    color: var(--ink);
+  }
+  .step p {
+    font-size: 12px;
+    color: var(--muted);
+  }
+
+  .toolbar {
+    display: grid;
+    grid-template-columns: 2fr 1fr 1fr 1fr;
+    gap: 10px;
+  }
+  input, select {
+    width: 100%;
+    padding: 11px 13px;
+    border: 1px solid var(--line);
+    border-radius: 10px;
+    background: white;
+    font: inherit;
+  }
+  input:focus, select:focus {
+    outline: 2px solid var(--blue-soft);
+    border-color: var(--blue);
+  }
+
+  .stats {
+    display: flex;
+    gap: 16px;
+    flex-wrap: wrap;
+    color: var(--muted);
+    font-size: 13px;
+    margin-top: 12px;
+  }
+
+  .grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(290px, 1fr));
+    gap: 16px;
+    margin-top: 18px;
+  }
+
+  .card {
+    overflow: hidden;
+    background: white;
+    border: 1px solid var(--line);
+    border-radius: 14px;
+    box-shadow: 0 4px 14px rgba(0,0,0,0.04);
+    display: flex;
+    flex-direction: column;
+    transition: transform 0.2s, box-shadow 0.2s;
+  }
+  .card:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 10px 28px rgba(127, 29, 29, 0.08);
+  }
+
+  .thumb {
+    aspect-ratio: 16/9;
+    background: linear-gradient(135deg, #fef2f2, #dbeafe);
+    position: relative;
+    overflow: hidden;
+  }
+  .thumb img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
+  }
+  .thumb .fallback {
+    height: 100%;
+    display: grid;
+    place-items: center;
+    font-weight: 700;
+    color: var(--red-deep);
+    padding: 24px;
+    text-align: center;
+    font-size: 14px;
+  }
+
+  .body { padding: 15px; display: flex; flex-direction: column; flex: 1; }
+  .tag {
+    font-size: 11px;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    color: var(--red);
+    font-weight: 700;
+  }
+  h3 {
+    font-size: 17px;
+    line-height: 1.25;
+    margin: 6px 0 6px;
+    font-weight: 600;
+  }
+  .desc { color: var(--muted); font-size: 13px; min-height: 36px; }
+  .meta {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 4px;
+    margin-top: 12px;
+    font-size: 12px;
+    color: #57534e;
+  }
+  .meta span b { color: #292524; }
+  .actions {
+    display: flex;
+    gap: 8px;
+    margin-top: 14px;
+  }
+  .watch {
+    background: var(--red);
+    color: white;
+    border-radius: 8px;
+    padding: 8px 12px;
+    text-decoration: none;
+    font-weight: 600;
+    font-size: 13px;
+  }
+  .watch:hover { background: var(--red-deep); }
+  .source {
+    color: var(--blue);
+    text-decoration: none;
+    padding: 8px 4px;
+    font-size: 13px;
+  }
+
+  .empty {
+    padding: 48px;
+    text-align: center;
+    color: var(--muted);
+    grid-column: 1 / -1;
+  }
+
+  h2 {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 26px;
+    margin: 32px 0 6px;
+    color: var(--red-deep);
+  }
+
+  footer {
+    border-top: 1px solid var(--line);
+    padding: 24px;
+    color: var(--muted);
+    font-size: 13px;
+    text-align: center;
+  }
+
+  @media (max-width: 900px) {
+    .toolbar { grid-template-columns: 1fr 1fr; }
+  }
+  @media (max-width: 600px) {
+    .toolbar { grid-template-columns: 1fr; }
+    h1 { font-size: 32px; }
+  }
+</style>
+</head>
+<body>
+
+<!-- ========== GIFT LANDING ========== -->
+<div id="landing">
+  <div class="envelope-wrap" id="openGift" role="button" tabindex="0" aria-label="Open gift for Alda">
+    <div class="envelope" id="envelope">
+      <div class="env-back"></div>
+      <div class="letter">
+        <!-- Cute chimpanzee (inline SVG) -->
+        <svg class="chimp" viewBox="0 0 120 120" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+          <!-- ears -->
+          <ellipse cx="28" cy="48" rx="16" ry="18" fill="#8B5E3C"/>
+          <ellipse cx="92" cy="48" rx="16" ry="18" fill="#8B5E3C"/>
+          <ellipse cx="28" cy="48" rx="10" ry="11" fill="#C4A484"/>
+          <ellipse cx="92" cy="48" rx="10" ry="11" fill="#C4A484"/>
+          <!-- head -->
+          <ellipse cx="60" cy="58" rx="38" ry="36" fill="#8B5E3C"/>
+          <!-- face -->
+          <ellipse cx="60" cy="64" rx="28" ry="26" fill="#E8D5B7"/>
+          <!-- eyes -->
+          <circle cx="48" cy="58" r="5.5" fill="#1c1917"/>
+          <circle cx="72" cy="58" r="5.5" fill="#1c1917"/>
+          <circle cx="49.5" cy="56.5" r="2" fill="#fff"/>
+          <circle cx="73.5" cy="56.5" r="2" fill="#fff"/>
+          <!-- brows -->
+          <path d="M40 50 Q48 46 54 50" stroke="#5D4037" stroke-width="2.5" stroke-linecap="round" fill="none"/>
+          <path d="M66 50 Q72 46 80 50" stroke="#5D4037" stroke-width="2.5" stroke-linecap="round" fill="none"/>
+          <!-- nose -->
+          <ellipse cx="60" cy="68" rx="6" ry="4.5" fill="#5D4037"/>
+          <!-- smile -->
+          <path d="M50 76 Q60 84 70 76" stroke="#5D4037" stroke-width="2.5" stroke-linecap="round" fill="none"/>
+          <!-- cheeks -->
+          <circle cx="42" cy="70" r="5" fill="#E8A0A0" opacity="0.5"/>
+          <circle cx="78" cy="70" r="5" fill="#E8A0A0" opacity="0.5"/>
+          <!-- little heart -->
+          <path d="M96 28 C96 22 104 22 104 28 C104 34 100 38 96 42 C92 38 88 34 88 28 C88 22 96 22 96 28Z" fill="#b91c1c"/>
+        </svg>
+        <div class="to-name">For Alda</div>
+        <div class="dedication">for our healing</div>
+        <div class="sub">a private library · with love</div>
+      </div>
+      <div class="env-front"></div>
+      <div class="env-flap"></div>
+      <div class="seal">❧</div>
+    </div>
+    <div class="tap-hint">or tap the button below</div>
+    <button type="button" class="open-btn" id="openBtn">Open gift for Alda</button>
+  </div>
+</div>
+
+<!-- ========== LIBRARY ========== -->
+<div id="library">
+  <header>
+    <div class="wrap">
+      <div class="eyebrow">A private gift library · curated September 2026</div>
+      <h1>The George Vithoulkas<br>Homeopathy Library</h1>
+      <p>A searchable companion to George Vithoulkas’ publicly available video material — organised for study, with categories, remedies, series and language. Links return to the original YouTube or official pages.</p>
+      <div class="gift-note">for Alda · for our healing</div>
+      <nav>
+        <a href="https://www.youtube.com/@VithoulkasVideo/videos" target="_blank" rel="noopener">Official YouTube</a>
+        <a href="https://vithoulkas.college/videos/" target="_blank" rel="noopener">Vithoulkas College</a>
+        <a href="https://app.vithoulkas.com/category/videos/" target="_blank" rel="noopener">Official archive</a>
+        <a href="https://www.vithoulkas.edu.gr/" target="_blank" rel="noopener">IACH E-Learning</a>
+      </nav>
+    </div>
+  </header>
+
+  <main class="wrap">
+    <div class="panel notice">
+      <strong>How this catalogue works:</strong> items are grouped as public YouTube material, official Vithoulkas/IACH pages, or course titles the Academy publicly identifies. A dash means a reliable public source did not state the field. This is a learning index, not medical advice. Homeopathy lacks good-quality evidence for treating serious disease and should not replace appropriate medical care.
+    </div>
+
+    <!-- START HERE GUIDED PATH -->
+    <section class="panel start-here">
+      <h2>Start Here</h2>
+      <p style="color:var(--muted);font-size:14px;max-width:620px">A gentle guided path through the most foundational public material — perfect if you are new to Vithoulkas’ teaching or want a curated sequence rather than browsing the full archive.</p>
+      <div class="path-steps">
+        <div class="step" data-search="Definition of Health">
+          <div class="step-num">Step 1 · Foundations</div>
+          <h4>Definition of Health</h4>
+          <p>Vithoulkas’ core definition — the starting point of the whole system.</p>
+        </div>
+        <div class="step" data-search="Levels of Health">
+          <div class="step-num">Step 2 · Theory</div>
+          <h4>Levels of Health</h4>
+          <p>The famous continuum that frames prognosis and case management.</p>
+        </div>
+        <div class="step" data-search="Secrets of Taking">
+          <div class="step-num">Step 3 · Practice</div>
+          <h4>Secrets of Case Taking</h4>
+          <p>How to listen and extract what truly matters in the consultation.</p>
+        </div>
+        <div class="step" data-search="Pulsatilla">
+          <div class="step-num">Step 4 · Materia Medica</div>
+          <h4>Pulsatilla</h4>
+          <p>A classic remedy portrait with comparison to Natrum muriaticum.</p>
+        </div>
+        <div class="step" data-search="Quantum Physics">
+          <div class="step-num">Step 5 · Deeper</div>
+          <h4>Quantum Physics & Homeopathy</h4>
+          <p>Where classical homeopathy meets modern scientific language.</p>
+        </div>
+        <div class="step" data-search="60 years">
+          <div class="step-num">Step 6 · Inspiration</div>
+          <h4>60 Years of Practice</h4>
+          <p>A reflective look at a lifetime dedicated to classical homeopathy.</p>
+        </div>
+      </div>
+    </section>
+
+    <h2>Explore the full archive</h2>
+    <div class="panel">
+      <div class="toolbar">
+        <input id="q" placeholder="Search title, remedy, topic, series…">
+        <select id="cat"><option value="">All subjects</option></select>
+        <select id="lang"><option value="">All languages</option></select>
+        <select id="year"><option value="">All years</option></select>
+      </div>
+      <div class="stats">
+        <span id="count"></span>
+        <span id="known"></span>
+        <span>Buttons open the original source on YouTube or official sites.</span>
+      </div>
+    </div>
+
+    <div id="grid" class="grid"></div>
+
+    <h2>Official curriculum context</h2>
+    <div class="panel notice">
+      The IACH describes its e-learning curriculum as covering Theory, Materia Medica, Repertorization, Research Methodology, Questions & Answers, Topics, Cases and Analysis, and Levels of Health. Its free-trial material includes samples on consultation theory, practitioner preparation, Hyoscyamus, Helleborus, Allium Cepa, prescribing for children, and a sciatica case. The public “New Horizons in Medicine” course lists eight videos (≈8 hours) including Definition of Health, Levels of Health and The Continuum of a Unified Theory of Diseases.
+    </div>
+  </main>
+
+  <footer>
+    <div class="wrap">
+      Created as a personal gift for Alda · Video rights remain with the original publishers · Last curated: September 2026
+    </div>
+  </footer>
+</div>
+
+<script>
+const videos = [
+  {"title":"Secrets of Taking a Homeopathic Case","category":"Case Taking","subject":"Consultation and case-taking method","remedy":"—","series":"Brazilian Course","year":"2014","language":"English","duration":"Not publicly stated","url":"https://www.youtube.com/results?search_query=George+Vithoulkas+Secrets+of+Taking+a+Homeopathic+Case","video_id":null},
+  {"title":"Materia Medica: Pulsatilla","category":"Materia Medica","subject":"Remedy study; comparison with Natrum muriaticum","remedy":"Pulsatilla","series":"Materia Medica / Alonissos","year":"2011","language":"English","duration":"Not publicly stated","url":"https://www.youtube.com/watch?v=GHXhrx1vcIc","video_id":"GHXhrx1vcIc"},
+  {"title":"Definition of Health by Prof. George Vithoulkas","category":"Health & Disease","subject":"Definition of health","remedy":"—","series":"New Horizons in Medicine","year":"2014","language":"English","duration":"Not publicly stated","url":"https://www.youtube.com/watch?v=6MobgeT1W1E","video_id":"6MobgeT1W1E"},
+  {"title":"Levels of Health","category":"Theory","subject":"Levels of Health theory","remedy":"—","series":"New Horizons in Medicine","year":"—","language":"English","duration":"Not publicly stated","url":"https://www.youtube.com/results?search_query=George+Vithoulkas+Levels+of+Health","video_id":null},
+  {"title":"The Continuum of a Unified Theory of Diseases","category":"Theory","subject":"Unified theory of diseases","remedy":"—","series":"New Horizons in Medicine","year":"—","language":"English","duration":"14 min (course version)","url":"https://www.youtube.com/results?search_query=George+Vithoulkas+Continuum+Unified+Theory+Diseases","video_id":null},
+  {"title":"New Ideas in Medicine","category":"Theory","subject":"New concepts in medicine and homeopathy","remedy":"—","series":"Vithoulkas Lectures","year":"—","language":"English","duration":"Not publicly stated","url":"https://www.youtube.com/results?search_query=George+Vithoulkas+New+Ideas+in+Medicine","video_id":null},
+  {"title":"Predisposition for Diseases","category":"Health & Disease","subject":"Predisposition to illness","remedy":"—","series":"Vithoulkas Lectures","year":"2013","language":"English","duration":"Not publicly stated","url":"https://www.youtube.com/watch?v=hzfqjj_33YI","video_id":"hzfqjj_33YI"},
+  {"title":"Prof. George Vithoulkas: Practising Classical Homeopathy for 60 years","category":"Documentary","subject":"60-year teaching/practice retrospective","remedy":"—","series":"60 Years of Teaching","year":"2020","language":"English","duration":"Not publicly stated","url":"https://www.youtube.com/watch?v=EgftrXoPbu0","video_id":"EgftrXoPbu0"},
+  {"title":"Protecting the Homeopath","category":"Professional Practice","subject":"Professional protection and integrity","remedy":"—","series":"Vithoulkas Videos","year":"2024","language":"English","duration":"Not publicly stated","url":"https://www.youtube.com/results?search_query=George+Vithoulkas+Protecting+the+Homeopath","video_id":null},
+  {"title":"The Qualities of an Ideal Healer","category":"Philosophy","subject":"Qualities of a healer","remedy":"—","series":"Vithoulkas Videos","year":"2024","language":"English","duration":"Not publicly stated","url":"https://www.youtube.com/results?search_query=George+Vithoulkas+Qualities+of+an+Ideal+Healer","video_id":null},
+  {"title":"The Mission of a Homeopath within our Societies","category":"Professional Practice","subject":"Role and responsibility of homeopaths","remedy":"—","series":"Vithoulkas Videos","year":"2024","language":"English","duration":"Not publicly stated","url":"https://www.youtube.com/results?search_query=George+Vithoulkas+Mission+Homeopath+Societies","video_id":null},
+  {"title":"The Controversy over Homeopathic Treatment","category":"Theory","subject":"Classical homeopathy and contemporary medicine","remedy":"—","series":"Vithoulkas Videos","year":"2024","language":"English","duration":"Not publicly stated","url":"https://www.youtube.com/results?search_query=George+Vithoulkas+Controversy+Homeopathic+Treatment","video_id":null},
+  {"title":"The Depth of Healing","category":"Philosophy","subject":"Health, healing, humanity and consciousness","remedy":"—","series":"Vithoulkas Videos","year":"2018","language":"English","duration":"Not publicly stated","url":"https://www.youtube.com/results?search_query=George+Vithoulkas+Depth+of+Healing","video_id":null},
+  {"title":"Imagination","category":"Theory","subject":"Imagination in Vithoulkas' teaching","remedy":"—","series":"Vithoulkas Videos","year":"2021","language":"English","duration":"Not publicly stated","url":"https://www.youtube.com/results?search_query=George+Vithoulkas+Imagination+homeopathy","video_id":null},
+  {"title":"Quantum Physics and Homeopathy","category":"Theory","subject":"Quantum physics, fields and the simillimum","remedy":"—","series":"Course for Experts","year":"2019","language":"English","duration":"Not publicly stated","url":"https://www.youtube.com/watch?v=1cLUzRI4jiQ","video_id":"1cLUzRI4jiQ"},
+  {"title":"50+ years’ teaching by Prof. George Vithoulkas","category":"Documentary","subject":"Teaching career overview","remedy":"—","series":"Vithoulkas Archive","year":"—","language":"English","duration":"Not publicly stated","url":"https://www.youtube.com/results?search_query=George+Vithoulkas+50+years+teaching","video_id":null},
+  {"title":"Documentary of SWF","category":"Documentary","subject":"Life and work of George Vithoulkas","remedy":"—","series":"SWF / German TV","year":"1998","language":"German","duration":"Not publicly stated","url":"https://www.youtube.com/results?search_query=George+Vithoulkas+SWF+documentary","video_id":null},
+  {"title":"Documentary of BBC","category":"Documentary","subject":"Life and work of George Vithoulkas","remedy":"—","series":"BBC","year":"—","language":"English","duration":"Not publicly stated","url":"https://www.youtube.com/results?search_query=George+Vithoulkas+BBC+documentary","video_id":null},
+  {"title":"Documentary of Deutsche Welle","category":"Documentary","subject":"George Vithoulkas / homeopathy","remedy":"—","series":"Deutsche Welle","year":"—","language":"German","duration":"Not publicly stated","url":"https://www.youtube.com/results?search_query=George+Vithoulkas+Deutsche+Welle+documentary","video_id":null},
+  {"title":"The E-Learning Program in Classical Homeopathy by Prof. George Vithoulkas","category":"Course Overview","subject":"Overview of the academic e-learning program","remedy":"—","series":"IACH E-Learning","year":"2021","language":"English","duration":"Not publicly stated","url":"https://www.youtube.com/results?search_query=George+Vithoulkas+E-Learning+Program+Classical+Homeopathy","video_id":null},
+  {"title":"We Build the New Generation of Homeopaths","category":"Academy","subject":"Overview of IACH and its educational mission","remedy":"—","series":"IACH Academy","year":"2021","language":"English","duration":"Not publicly stated","url":"https://www.youtube.com/results?search_query=George+Vithoulkas+We+Build+the+New+Generation+of+Homeopaths","video_id":null},
+  {"title":"Learn with us!","category":"Academy","subject":"Introduction to IACH postgraduate courses","remedy":"—","series":"IACH Academy","year":"2021","language":"English","duration":"Not publicly stated","url":"https://www.youtube.com/results?search_query=George+Vithoulkas+Learn+with+us+IACH","video_id":null},
+  {"title":"Homeopathy Webinar with Prof. George Vithoulkas","category":"Webinar","subject":"Classical homeopathy teaching webinar","remedy":"—","series":"Webinar","year":"—","language":"English","duration":"Not publicly stated","url":"https://www.youtube.com/watch?v=4-TpW33zsNk","video_id":"4-TpW33zsNk"},
+  {"title":"Vithoulkas Compass: Chronic depression & panic disorder","category":"Clinical Cases","subject":"Case analysis using Vithoulkas Compass","remedy":"—","series":"Vithoulkas Compass","year":"—","language":"English","duration":"Not publicly stated","url":"https://www.youtube.com/results?search_query=Vithoulkas+Compass+George+Vithoulkas+depression+panic","video_id":null},
+  {"title":"Vithoulkas Compass: Chronic allergies & diabetes II","category":"Clinical Cases","subject":"Case analysis using Vithoulkas Compass","remedy":"—","series":"Vithoulkas Compass","year":"—","language":"English","duration":"Not publicly stated","url":"https://www.youtube.com/results?search_query=Vithoulkas+Compass+George+Vithoulkas+allergies+diabetes","video_id":null},
+  {"title":"Vithoulkas Compass: Co-morbidity chronic disease","category":"Clinical Cases","subject":"Long-term chronic case analysis","remedy":"—","series":"Vithoulkas Compass","year":"—","language":"English","duration":"Not publicly stated","url":"https://www.youtube.com/results?search_query=Vithoulkas+Compass+George+Vithoulkas+co-morbidity","video_id":null},
+  {"title":"Vithoulkas Compass: Osteomyelitis case","category":"Clinical Cases","subject":"Case analysis","remedy":"—","series":"Vithoulkas Compass","year":"—","language":"English","duration":"Not publicly stated","url":"https://www.youtube.com/results?search_query=Vithoulkas+Compass+George+Vithoulkas+osteomyelitis","video_id":null},
+  {"title":"Vithoulkas Compass: Narcolepsy case","category":"Clinical Cases","subject":"Case analysis","remedy":"—","series":"Vithoulkas Compass","year":"—","language":"English","duration":"Not publicly stated","url":"https://www.youtube.com/results?search_query=Vithoulkas+Compass+George+Vithoulkas+narcolepsy","video_id":null},
+  {"title":"Vithoulkas Compass: Crohn’s disease / proctitis","category":"Clinical Cases","subject":"Case analysis","remedy":"—","series":"Vithoulkas Compass","year":"—","language":"English","duration":"Not publicly stated","url":"https://www.youtube.com/results?search_query=Vithoulkas+Compass+George+Vithoulkas+Crohn+proctitis","video_id":null},
+  {"title":"Vithoulkas Compass: Lyme disease","category":"Clinical Cases","subject":"Case analysis","remedy":"—","series":"Vithoulkas Compass","year":"—","language":"English","duration":"Not publicly stated","url":"https://www.youtube.com/results?search_query=Vithoulkas+Compass+George+Vithoulkas+Lyme","video_id":null},
+  {"title":"Materia Medica: Phosphorus — German Part 1","category":"Materia Medica","subject":"Remedy study","remedy":"Phosphorus","series":"German Materia Medica","year":"—","language":"German","duration":"Not publicly stated","url":"https://www.youtube.com/results?search_query=George+Vithoulkas+Phosphorus+German+Part+1","video_id":null},
+  {"title":"Materia Medica: Phosphorus — German Part 2","category":"Materia Medica","subject":"Remedy study","remedy":"Phosphorus","series":"German Materia Medica","year":"—","language":"German","duration":"Not publicly stated","url":"https://www.youtube.com/results?search_query=George+Vithoulkas+Phosphorus+German+Part+2","video_id":null},
+  {"title":"Materia Medica: Platina — German Part 1","category":"Materia Medica","subject":"Remedy study","remedy":"Platina","series":"German Materia Medica","year":"—","language":"German","duration":"Not publicly stated","url":"https://www.youtube.com/results?search_query=George+Vithoulkas+Platina+German+Part+1","video_id":null},
+  {"title":"Materia Medica: Platina — German Part 2","category":"Materia Medica","subject":"Remedy study","remedy":"Platina","series":"German Materia Medica","year":"—","language":"German","duration":"Not publicly stated","url":"https://www.youtube.com/results?search_query=George+Vithoulkas+Platina+German+Part+2","video_id":null},
+  {"title":"Materia Medica: Arnica — German Part 1","category":"Materia Medica","subject":"Remedy study","remedy":"Arnica","series":"German Materia Medica","year":"—","language":"German","duration":"Not publicly stated","url":"https://www.youtube.com/results?search_query=George+Vithoulkas+Arnica+German+Part+1","video_id":null},
+  {"title":"Materia Medica: Arnica — German Part 2","category":"Materia Medica","subject":"Remedy study","remedy":"Arnica","series":"German Materia Medica","year":"—","language":"German","duration":"Not publicly stated","url":"https://www.youtube.com/results?search_query=George+Vithoulkas+Arnica+German+Part+2","video_id":null},
+  {"title":"Hyoscyamus — course sample","category":"Materia Medica","subject":"Remedy study","remedy":"Hyoscyamus","series":"IACH Free Trial","year":"—","language":"English","duration":"Included in 60-min Materia Medica sample block","url":"https://www.youtube.com/results?search_query=George+Vithoulkas+Hyoscyamus","video_id":null},
+  {"title":"Helleborus — course sample","category":"Materia Medica","subject":"Remedy study","remedy":"Helleborus","series":"IACH Free Trial","year":"—","language":"English","duration":"Included in 60-min Materia Medica sample block","url":"https://www.youtube.com/results?search_query=George+Vithoulkas+Helleborus","video_id":null},
+  {"title":"Allium Cepa — course sample","category":"Materia Medica","subject":"Remedy study","remedy":"Allium Cepa","series":"IACH Free Trial","year":"—","language":"English","duration":"Included in 60-min Materia Medica sample block","url":"https://www.youtube.com/results?search_query=George+Vithoulkas+Allium+Cepa","video_id":null},
+  {"title":"Keynotes — Prescribing for children","category":"Clinical Practice","subject":"Keynotes and prescribing for children","remedy":"—","series":"IACH Free Trial","year":"—","language":"English","duration":"35 min","url":"https://www.youtube.com/results?search_query=George+Vithoulkas+Keynotes+Prescribing+for+children","video_id":null},
+  {"title":"The significance of a homeopathic consultation","category":"Theory","subject":"Consultation theory","remedy":"—","series":"IACH Free Trial","year":"—","language":"English","duration":"Part of 75-min theory sample block","url":"https://www.youtube.com/results?search_query=George+Vithoulkas+significance+homeopathic+consultation","video_id":null},
+  {"title":"The Preparation of the homeopath","category":"Theory","subject":"Preparation of the practitioner","remedy":"—","series":"IACH Free Trial","year":"—","language":"English","duration":"Part of 75-min theory sample block","url":"https://www.youtube.com/results?search_query=George+Vithoulkas+Preparation+of+the+homeopath","video_id":null},
+  {"title":"Sciatica — new patient / follow-ups 1–2–3","category":"Clinical Cases","subject":"Longitudinal case and follow-up","remedy":"—","series":"IACH Free Trial","year":"—","language":"English","duration":"3 hours total case block","url":"https://www.youtube.com/results?search_query=George+Vithoulkas+Sciatica+NP+FU1+FU2+FU3","video_id":null}
+];
+
+const grid = document.getElementById('grid');
+const q = document.getElementById('q');
+const cat = document.getElementById('cat');
+const lang = document.getElementById('lang');
+const year = document.getElementById('year');
+const count = document.getElementById('count');
+const known = document.getElementById('known');
+
+[...new Set(videos.map(v => v.category))].sort().forEach(x => {
+  cat.insertAdjacentHTML('beforeend', `<option value="${x}">${x}</option>`);
+});
+[...new Set(videos.map(v => v.language))].sort().forEach(x => {
+  lang.insertAdjacentHTML('beforeend', `<option value="${x}">${x}</option>`);
+});
+[...new Set(videos.map(v => v.year).filter(x => x !== '—'))].sort((a,b) => b - a).forEach(x => {
+  year.insertAdjacentHTML('beforeend', `<option value="${x}">${x}</option>`);
+});
+
+function esc(s) {
+  return String(s).replace(/[&<>"']/g, m => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#039;'}[m]));
+}
+
+function render() {
+  const s = q.value.toLowerCase().trim();
+  const c = cat.value;
+  const l = lang.value;
+  const y = year.value;
+  const arr = videos.filter(v =>
+    (!c || v.category === c) &&
+    (!l || v.language === l) &&
+    (!y || v.year === y) &&
+    (!s || Object.values(v).join(' ').toLowerCase().includes(s))
+  );
+  count.textContent = `${arr.length} of ${videos.length} indexed items`;
+  known.textContent = `${videos.filter(v => v.video_id).length} with verified direct YouTube IDs`;
+
+  if (!arr.length) {
+    grid.innerHTML = '<div class="empty">No matching material.</div>';
+    return;
+  }
+
+  grid.innerHTML = arr.map(v => {
+    const direct = !!v.video_id;
+    const thumb = direct
+      ? `https://i.ytimg.com/vi/${v.video_id}/hqdefault.jpg`
+      : '';
+    return `<article class="card">
+      <div class="thumb">${
+        direct
+          ? `<img src="${thumb}" alt="" loading="lazy" onerror="this.style.display='none';this.parentNode.innerHTML='<div class=\\'fallback\\'>${esc(v.title)}</div>'">`
+          : `<div class="fallback">${esc(v.title)}</div>`
+      }</div>
+      <div class="body">
+        <div class="tag">${esc(v.category)}</div>
+        <h3>${esc(v.title)}</h3>
+        <div class="desc">${esc(v.subject)}</div>
+        <div class="meta">
+          <span><b>Remedy:</b> ${esc(v.remedy)}</span>
+          <span><b>Language:</b> ${esc(v.language)}</span>
+          <span><b>Year:</b> ${esc(v.year)}</span>
+          <span><b>Duration:</b> ${esc(v.duration)}</span>
+          <span style="grid-column:1/-1"><b>Series:</b> ${esc(v.series)}</span>
+        </div>
+        <div class="actions">
+          <a class="watch" href="${v.url}" target="_blank" rel="noopener">${direct ? 'Watch on YouTube' : 'Open YouTube search'}</a>
+          <a class="source" href="https://www.vithoulkas.com/" target="_blank" rel="noopener">Official site</a>
+        </div>
+      </div>
+    </article>`;
+  }).join('');
+}
+
+[q, cat, lang, year].forEach(el => el.addEventListener('input', render));
+render();
+
+/* Guided path clicks → filter search */
+document.querySelectorAll('.step').forEach(step => {
+  step.addEventListener('click', () => {
+    const term = step.dataset.search || '';
+    q.value = term;
+    cat.value = '';
+    lang.value = '';
+    year.value = '';
+    render();
+    document.getElementById('grid').scrollIntoView({ behavior: 'smooth', block: 'start' });
+  });
+});
+
+/* Envelope open — more reliable on iPhone */
+const landing = document.getElementById('landing');
+const envelope = document.getElementById('envelope');
+const library = document.getElementById('library');
+const openGift = document.getElementById('openGift');
+const openBtn = document.getElementById('openBtn');
+
+let opened = false;
+function openTheGift(e) {
+  if (opened) return;
+  opened = true;
+  if (e) {
+    e.preventDefault();
+    e.stopPropagation();
+  }
+  envelope.classList.add('open');
+  if (openBtn) openBtn.style.display = 'none';
+  setTimeout(() => {
+    landing.classList.add('hidden');
+    library.classList.add('show');
+    document.body.style.overflow = 'auto';
+  }, 900);
+}
+
+/* Multiple event types for better mobile support */
+['click', 'touchend'].forEach(evt => {
+  openGift.addEventListener(evt, openTheGift, { passive: false });
+  if (openBtn) openBtn.addEventListener(evt, openTheGift, { passive: false });
+});
+openGift.addEventListener('keydown', e => {
+  if (e.key === 'Enter' || e.key === ' ') {
+    e.preventDefault();
+    openTheGift(e);
+  }
+});
+</script>
+</body>
+</html>
 
